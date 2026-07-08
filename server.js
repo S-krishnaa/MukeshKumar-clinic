@@ -3,6 +3,10 @@
 // This means ONE deployment, no CORS setup needed, and one URL for everything.
 
 require('dotenv').config();
+console.log("=== DEPLOY TEST ===");
+console.log("SMTP HOST:", process.env.SMTP_HOST);
+console.log("SMTP USER:", process.env.SMTP_USER);
+console.log("SMTP PORT:", process.env.SMTP_PORT);
 const path = require('path');
 const express = require('express');
 const nodemailer = require('nodemailer');
@@ -30,12 +34,15 @@ function isRateLimited(ip) {
 // ----- Mail transporter (Gmail + App Password) -----
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
-  secure: false,
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
 transporter.verify(function (error, success) {
   if (error) {
@@ -93,8 +100,8 @@ app.post('/api/book-appointment', async (req, res) => {
     } = req.body;
 
     const mailOptions = {
-      from: `"Clinic Website" <${process.env.GMAIL_USER}>`,
-      to: process.env.DOCTOR_EMAIL || process.env.GMAIL_USER,
+      from: `"Clinic Website" <${process.env.SMTP_USER}>`,
+      to: process.env.DOCTOR_EMAIL,
       replyTo: patientEmail || undefined,
       subject: `New Appointment Request — ${patientName} (${visitDate})`,
       html: `

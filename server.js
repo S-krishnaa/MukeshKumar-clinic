@@ -37,6 +37,13 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS,
   },
 });
+transporter.verify(function (error, success) {
+  if (error) {
+    console.error("SMTP VERIFY:", error);
+  } else {
+    console.log("SMTP Server is ready");
+  }
+});
 
 // ----- Validation -----
 function validateBooking(body) {
